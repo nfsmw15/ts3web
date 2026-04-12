@@ -15,7 +15,6 @@
 */
 if(!defined("SECURECHECK")) {die($lang['error_file_alone']);} 
 $wiversionurl="https://nfsmw15.de/ts3web/wiversion.html";
-$seversionurl="https://nfsmw15.de/ts3web/seversion.html";
 $dirtylisturl="https://nfsmw15.de/ts3web/dirtylist.html";
-$wiversion="v3.4.4-php8";
+$wiversion="v3.4.3-php8";
 ?>
