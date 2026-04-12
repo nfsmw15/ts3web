@@ -14,7 +14,7 @@
 *You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>. 
 */
 if(!defined("SECURECHECK")) {die($lang['error_file_alone']);} 
-$wiversionurl="https://nfsmw15.de/ts3web/wiversion.html";
+$wiversionurl="https://raw.githubusercontent.com/nfsmw15/ts3web/main/wiversion.html";
 $dirtylisturl="https://nfsmw15.de/ts3web/dirtylist.html";
 $wiversion="v3.4.3-php8";
 ?>
