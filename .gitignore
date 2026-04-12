@@ -1,1 +1,16 @@
+# Konfiguration mit echten Zugangsdaten
+config.php
+
+# Smarty Cache (wird zur Laufzeit generiert)
+templates_c/
+
+# Backup-Dateien
+site/backups/
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Editor
 .vscode/
+*.swp
