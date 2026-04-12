@@ -419,35 +419,90 @@ function conv_traffic($bytes)
 
 function check_wi_version($wiversion, $wiversionurl)
 	{
-	$file=@file_get_contents($wiversionurl);
-	$get_number=str_replace('beta', '', $wiversion);
-	$get_number2=str_replace('beta', '', $file);
-	if($wiversion==$file or $get_number>$get_number2)
+	// Fetch wiversion.html which contains API-URL|Base-Download-URL
+	$ch=curl_init();
+	curl_setopt($ch, CURLOPT_URL, $wiversionurl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	$response=trim(curl_exec($ch));
+	$httpcode=curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+
+	if($response===false OR $httpcode!==200)
+		{
+		return true;
+		}
+
+	// Parse API-URL and base download URL separated by |
+	$parts=explode('|', $response, 2);
+	if(count($parts)!==2)
+		{
+		return true;
+		}
+
+	$apiurl=trim($parts[0]);
+	$basedownloadurl=trim($parts[1]);
+
+	// Security: only allow https:// URLs
+	if(substr($apiurl, 0, 8)!=='https://' OR substr($basedownloadurl, 0, 8)!=='https://')
+		{
+		return true;
+		}
+
+	// Fetch latest release from API
+	$ch=curl_init();
+	curl_setopt($ch, CURLOPT_URL, $apiurl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'ts3web-updatecheck');
+	$json=curl_exec($ch);
+	$httpcode=curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+
+	if($json===false OR $httpcode!==200)
+		{
+		return true;
+		}
+
+	$data=json_decode($json, true);
+	if(!isset($data['tag_name']))
+		{
+		return true;
+		}
+
+	$latestversion=trim($data['tag_name']);
+
+	// Security: validate version format - only allow v3.x.x.x-php8 pattern
+	if(!preg_match('/^v[\d]+\.[\d]+\.[\d]+(?:\.[\d]+)?(?:-php8)?$/', $latestversion))
+		{
+		return true;
+		}
+
+	// Security: validate download URL starts with base URL
+	$downloadurl=$basedownloadurl.$latestversion;
+	if(substr($downloadurl, 0, strlen($basedownloadurl))!==$basedownloadurl)
+		{
+		return true;
+		}
+
+	// Compare versions
+	$get_number=str_replace(array('beta', 'v', '-php8'), '', $wiversion);
+	$get_number2=str_replace(array('beta', 'v', '-php8'), '', $latestversion);
+	if($wiversion===$latestversion OR version_compare($get_number, $get_number2, '>='))
 		{
 		return true;
 		}
 		else
 		{
-		return "<a class=\"warning\" href=\"http://www.ts3.cs-united.de/ts3wi/traffic.php?version=".$file."\" target=\"_blank\">".$file."</a>";
+		return "<a class=\"warning\" href=\"".$downloadurl."\" target=\"_blank\">".$latestversion."</a>";
 		}
 	}
 	
-function check_server_version($serverversion, $seversionurl)
-	{
-	$file=@file_get_contents($seversionurl);
-	$get_build=explode(' ', $serverversion);
-	$get_build=str_replace(']', '', $get_build[2]);
-	$get_build2=explode(' ', $file);
-	$get_build2=str_replace(']', '', $get_build2[2]);
-	if ($serverversion==$file OR $get_build>$get_build2)
-		{
-		return true;
-		}
-		else
-		{
-		return "<a class=\"warning\" href=\"http://www.teamspeak.com\" target=\"_blank\">".$file."</a>";
-		}
-	}
+	
 	
 function parse_bbcode($txt)
 	{
