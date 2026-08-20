@@ -46,7 +46,7 @@ if(isset($_GET['site']))
 	$site=$_GET['site'];
 	}
 require("header.php");
-if(isset($_GET['sid']) and isset($ts3))
+if(isset($ts3) and (isset($_SESSION['loginsid']) or isset($_GET['sid'])))
 	{
 	if(isset($_SESSION['loginsid']))
 		{

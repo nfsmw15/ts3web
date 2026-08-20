@@ -1840,7 +1840,7 @@ class ts3admin {
   * @param		string	$dirname	dirPath
   * @return     boolean success
   */
-	function ftCreateDir($cid, $cpw = null, $dirname) {
+	function ftCreateDir($cid, $cpw, $dirname) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
 		return $this->getData('boolean', 'ftcreatedir cid='.$cid.' cpw='.$this->escapeText($cpw).' dirname='.$this->escapeText($dirname));
 	}
@@ -1866,7 +1866,7 @@ class ts3admin {
   * @param		array	$files	files
   * @return     boolean success
   */
-	function ftDeleteFile($cid, $cpw = '', $files) {
+	function ftDeleteFile($cid, $cpw, $files) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
 		$fileArray = array();
 		
@@ -1937,7 +1937,7 @@ class ts3admin {
   * @param		array	$files	files
   * @return     boolean success
   */
-	function ftGetFileInfo($cid, $cpw = '', $files) {
+	function ftGetFileInfo($cid, $cpw, $files) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
 		$fileArray = array();
 		
@@ -1977,7 +1977,7 @@ class ts3admin {
   * @param		string	$path	filePath
   * @return     array	fileList
   */
-	function ftGetFileList($cid, $cpw = '', $path) {
+	function ftGetFileList($cid, $cpw, $path) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
 		return $this->getData('multi', 'ftgetfilelist cid='.$cid.' cpw='.$this->escapeText($cpw).' path='.$this->escapeText($path));
 	}
@@ -2097,7 +2097,7 @@ class ts3admin {
   * @param		string  $tcpw		targetChannelPassword [optional]
   * @return     boolean success
   */
-	function ftRenameFile($cid, $cpw = null, $oldname, $newname, $tcid = null,  $tcpw = null) {
+	function ftRenameFile($cid, $cpw, $oldname, $newname, $tcid = null, $tcpw = null) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
 		$newTarget = ($tcid != null ? ' tcid='.$tcid.' '.$tcpw : '');
 		return $this->getData('boolean', 'ftrenamefile cid='.$cid.' cpw='.$cpw.' oldname='.$this->escapeText($oldname).' newname='.$this->escapeText($newname).$newTarget);
@@ -2565,8 +2565,10 @@ class ts3admin {
   */
 	private function quit() {
 		$this->logout();
-		@fputs($this->runtime['socket'], "quit\n");
-		@fclose($this->runtime['socket']);
+		if(is_resource($this->runtime['socket'])) {
+			@fputs($this->runtime['socket'], "quit\n");
+			@fclose($this->runtime['socket']);
+		}
 	}
 
 /**
@@ -3836,9 +3838,14 @@ class ts3admin {
   * @return     string	text
   */
  	private function unEscapeText($text) {
- 		$escapedChars = array("\t", "\v", "\r", "\n", "\f", "\s", "\p", "\/");
- 		$unEscapedChars = array('', '', '', '', '', ' ', '|', '/');
+		// Strip stray raw control bytes first: TS3 ServerQuery prefixes
+		// responses with a raw \r, which space-only tokenization would
+		// otherwise attach to the first key of the line (e.g. "\rvirtualserver_id").
+		$text = str_replace(array("\t", "\v", "\r", "\n", "\f"), '', $text);
+ 		$escapedChars = array('\t', '\v', '\r', '\n', '\f', '\s', '\p', '\/');
+ 		$unEscapedChars = array("\t", "\v", "\r", "\n", "\f", ' ', '|', '/');
 		$text = str_replace($escapedChars, $unEscapedChars, $text);
+		$text = str_replace('\\\\', '\\', $text);
 		return $text;
 	}
 
@@ -3853,6 +3860,7 @@ class ts3admin {
   * @return     string	text
   */
  	private function escapeText($text) {
+ 		$text = str_replace('\\', '\\\\', $text);
  		$text = str_replace("\t", '\t', $text);
 		$text = str_replace("\v", '\v', $text);
 		$text = str_replace("\r", '\r', $text);
@@ -3946,14 +3954,22 @@ class ts3admin {
 		}
 
 		do {
-			$data .= fgets($this->runtime['socket'], 4096);
-			
+			$line = fgets($this->runtime['socket'], 4096);
+
+			if($line === false) {
+				$this->runtime['socket'] = '';
+				$this->addDebugLog('Connection to server lost while reading response.', $tracert[1]['function'], $tracert[0]['line']);
+				return $this->generateOutput(false, array('Error: connection to server lost'), false);
+			}
+
+			$data .= $line;
+
 			if(strpos($data, 'error id=3329 msg=connection') !== false) {
 				$this->runtime['socket'] = '';
 				$this->addDebugLog('You got banned from server. Socket closed.', $tracert[1]['function'], $tracert[0]['line']);
 				return $this->generateOutput(false, array('You got banned from server. Connection closed.'), false);
 			}
-			
+
 		} while(strpos($data, 'msg=') === false or strpos($data, 'error id=') === false);
 
 		if(strpos($data, 'error id=0 msg=ok') === false) {
@@ -4113,8 +4129,12 @@ class ts3admin {
  */
 	private function ftRead($size) {
 		$data = '';
-		while(strlen($data) < $size) {		
-			$data .= fgets($this->runtime['fileSocket'], 4096);
+		while(strlen($data) < $size) {
+			$chunk = fgets($this->runtime['fileSocket'], 4096);
+			if($chunk === false) {
+				break;
+			}
+			$data .= $chunk;
 		}
 		return $data;
 	}

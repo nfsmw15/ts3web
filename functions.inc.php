@@ -138,6 +138,15 @@ function getPermsCommand($mode, $id, $perms)
 	
 function check_version_consistency($dirtylisturl)
 	{
+	// Only do the live network check every few hours - this used to run on
+	// every single page load and added several seconds of latency each time.
+	$cachefile=TS3WI_DIR.DS.'temp'.DS.'.versioncheck';
+	$interval=21600; // 6 hours
+	if(file_exists($cachefile) AND (time()-(int)@file_get_contents($cachefile))<$interval)
+		{
+		return;
+		}
+
 	// Fetch dirtylist via cURL (more reliable than file_get_contents)
 	$ch=curl_init();
 	curl_setopt($ch, CURLOPT_URL, $dirtylisturl);
@@ -145,9 +154,14 @@ function check_version_consistency($dirtylisturl)
 	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // avoid multi-second stalls on dead IPv6 routes
 	$file=curl_exec($ch);
 	$httpcode=curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	curl_close($ch);
+
+	// Throttle from here regardless of outcome, so an unreachable/slow endpoint
+	// doesn't force a full network call (and its latency) on every page load.
+	@file_put_contents($cachefile, time());
 
 	// Only enforce if we got a valid response
 	if($file===false OR $httpcode!==200)
@@ -419,6 +433,26 @@ function conv_traffic($bytes)
 
 function check_wi_version($wiversion, $wiversionurl)
 	{
+	// Only hit the network every few hours - this used to run on every
+	// single page load (two chained HTTP requests) and added latency each time.
+	$cachefile=TS3WI_DIR.DS.'temp'.DS.'.wiversioncheck';
+	$interval=21600; // 6 hours
+	if(file_exists($cachefile))
+		{
+		$cached=json_decode((string)@file_get_contents($cachefile), true);
+		if(is_array($cached) AND isset($cached['time'], $cached['result']) AND (time()-$cached['time'])<$interval)
+			{
+			return $cached['result'];
+			}
+		}
+
+	$result=check_wi_version_impl($wiversion, $wiversionurl);
+	@file_put_contents($cachefile, json_encode(array('time'=>time(), 'result'=>$result)));
+	return $result;
+	}
+
+function check_wi_version_impl($wiversion, $wiversionurl)
+	{
 	// Fetch wiversion.html which contains API-URL|Base-Download-URL
 	$ch=curl_init();
 	curl_setopt($ch, CURLOPT_URL, $wiversionurl);
@@ -426,6 +460,7 @@ function check_wi_version($wiversion, $wiversionurl)
 	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // avoid multi-second stalls on dead IPv6 routes
 	$response=trim(curl_exec($ch));
 	$httpcode=curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	curl_close($ch);
@@ -458,6 +493,7 @@ function check_wi_version($wiversion, $wiversionurl)
 	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // avoid multi-second stalls on dead IPv6 routes
 	curl_setopt($ch, CURLOPT_USERAGENT, 'ts3web-updatecheck');
 	$json=curl_exec($ch);
 	$httpcode=curl_getinfo($ch, CURLINFO_HTTP_CODE);

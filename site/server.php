@@ -181,7 +181,7 @@ if(!empty($serverlist))
 
 	array_multisort($sort, $sorttype, $serverlist);
 	}
-	
+
 $smarty->assign("sortby", $sortby);
 $smarty->assign("sorttype", $sorttype);
 $smarty->assign("serverstats", sprintf($lang['serverstats'], count($serverlist), $allslots, $allusedslots));
