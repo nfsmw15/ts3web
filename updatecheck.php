@@ -16,5 +16,5 @@
 if(!defined("SECURECHECK")) {die($lang['error_file_alone']);} 
 $wiversionurl="https://raw.githubusercontent.com/nfsmw15/ts3web/main/wiversion.html";
 $dirtylisturl="https://nfsmw15.de/ts3web/dirtylist.html";
-$wiversion="v3.4.4-php8";
+$wiversion="v3.4.5-php8";
 ?>

@@ -8,6 +8,16 @@ version 3 of the License, or any later version.
 -->
 # Changelog
 
+## v3.4.5-php8 (2026-08-20)
+
+- Fixed broken `Serverview` links (empty `sid=`) for scoped/single-server logins on pages whose own URL didn't already carry `?sid=`
+- `check_version_consistency()`/`check_wi_version()` now do their live network check at most once every 6 hours instead of on every page load, and force IPv4 to avoid multi-second stalls on dead IPv6 routes — fixes pages feeling slow
+- `ts3admin.class.php`:
+  - `unEscapeText()` no longer corrupts the first field of a ServerQuery response (TS3 prefixes responses with a raw `\r` that has to be stripped, not just escape-decoded); `escapeText()` now escapes backslashes
+  - `executeCommand()`/`ftRead()` no longer loop forever if the connection drops mid-response
+  - `quit()` no longer errors if called without an active connection
+  - Removed PHP 8.1-deprecated optional-before-required parameters in the file-transfer functions
+
 ## PHP 8.x Port (2026)
 
 ### Core PHP 8.x fixes
