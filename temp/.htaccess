@@ -1,0 +1,11 @@
+# Apache: deny all direct access to this directory (Smarty/version-check
+# cache files and temporary upload staging live here, nothing here should
+# ever be served directly). Has no effect on nginx - see README for the
+# equivalent nginx `location` block.
+<IfModule mod_authz_core.c>
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	Order deny,allow
+	Deny from all
+</IfModule>

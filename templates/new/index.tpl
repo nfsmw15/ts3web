@@ -191,6 +191,11 @@ function confirmAction()
 	<tr>
 		<td colspan="2">{include file="{$tmpl}/head.tpl"}</td>
 	</tr>
+	{if !empty($csrf_failed)}
+	<tr>
+		<td colspan="2" class="error">{$lang['csrferror']}</td>
+	</tr>
+	{/if}
 	{include file="{$tmpl}/showupdate.tpl"}
 	<tr valign="top">	
 		{include file="{$tmpl}/mainbar.tpl"}

@@ -29,12 +29,26 @@ require_once('../libs/Smarty/libs/Smarty.class.php');
 
 if(!isset($_SESSION['logged']) OR isset($_SESSION['logged']) AND $_SESSION['logged']!=true OR empty($_GET['sid']) OR empty($_GET['cid'])) {die($lang['error_file_alone']);}
 
+// CSRF protection, mirrors index.php since this file is a standalone entry point.
+if(empty($_SESSION['csrf_token']))
+	{
+	$_SESSION['csrf_token']=bin2hex(random_bytes(32));
+	}
+if($_SERVER['REQUEST_METHOD']==='POST')
+	{
+	if(empty($_POST['csrf_token']) OR !hash_equals($_SESSION['csrf_token'], (string)$_POST['csrf_token']))
+		{
+		$_POST=array();
+		}
+	}
+
 $smarty=new Smarty();
 
 $smarty->template_dir = '..'.DS.'templates/';
 $smarty->compile_dir = '..'.DS.'templates_c/';
 $smarty->config_dir = '..'.DS.'configs/';
-$smarty->cache_dir = '..'.DS.'cache/'; 
+$smarty->cache_dir = '..'.DS.'cache/';
+$smarty->assign("csrf_token", $_SESSION['csrf_token']);
 
 $error='';
 $noerror='';
@@ -58,7 +72,7 @@ function cmp($a, $b)
     return strcmp($a["name"], $b["name"]);
 }
 
-if(isset($_GET['deletefile']))
+if(isset($_GET['deletefile']) AND !empty($_SESSION['csrf_token']) AND !empty($_GET['csrf_token']) AND hash_equals($_SESSION['csrf_token'], (string)$_GET['csrf_token']))
 	{
 	$delfiles[]=$_GET['path']=="/" ? "/".$_GET['name']:$_GET['path']."/".$_GET['name'];
 	$isdelete=$ts3->ftDeleteFile($_GET['cid'], isset($_GET['cpw']) ? $_GET['cpw']:'', $delfiles);

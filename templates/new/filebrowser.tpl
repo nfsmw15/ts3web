@@ -57,7 +57,7 @@
 				<td class="green1">{if $value['type'] == 0} <img src='../gfx/images/folder.png' alt="" /> <a href="filebrowser.php?&amp;sid={$smarty.get.sid}&amp;path={if $smarty.get.path != "/"}{$smarty.get.path}{/if}/{$value['name']}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}">{$value['name']}</a>{else}<img src='../gfx/images/file.png' alt="" /> <a href="filetransfer.php?sid={$smarty.get.sid}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}&amp;path={if $smarty.get.path != "/"}{$smarty.get.path}{/if}&amp;name={$value['name']}&amp;getfile=1" target="_blank">{$value['name']}</a>{/if}</td>
 				<td class="green1">{$value['size']} Mb</td>
 				<td class="green1">{$value['datetime']|date_format:"%d.%m.%Y - %H:%M:%S"}</td>
-				<td class="green1"><a href="filebrowser.php?sid={$smarty.get.sid}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}&amp;path={$smarty.get.path}&amp;name={$value['name']}&amp;deletefile=1">{$lang['delete']}</a></td>
+				<td class="green1"><a href="filebrowser.php?sid={$smarty.get.sid}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}&amp;path={$smarty.get.path}&amp;name={$value['name']}&amp;deletefile=1&amp;csrf_token={$csrf_token}">{$lang['delete']}</a></td>
 			</tr>	
 		{/foreach}
 	{else}

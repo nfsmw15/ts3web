@@ -43,11 +43,18 @@ if(isset($_POST['loginPw'])) {$lg_pw=$_POST['loginPw'];}
 
 $loginstatus=false;
 $hoststatus=false;
+$loginlockout=0;
 
 if(!empty($lg_user) AND !empty($lg_pw))
 	{
-	if($ts3->getElement('success', $ts3->login($lg_user, $lg_pw))===true)
+	$loginlockout=login_rate_limit_check($uip);
+	if($loginlockout>0)
 		{
+		// Too many recent failures from this IP - don't even try the TS3 server.
+		}
+		elseif($ts3->getElement('success', $ts3->login($lg_user, $lg_pw))===true)
+		{
+		login_rate_limit_clear($uip);
 		$loginstatus=true;
 		$_SESSION['logged']=true;
 		$_SESSION['userip']=$uip;
@@ -63,6 +70,10 @@ if(!empty($lg_user) AND !empty($lg_pw))
 			{
 			$hoststatus=true;
 			}
+		}
+		else
+		{
+		login_rate_limit_record_failure($uip);
 		}
 	}
 

@@ -25,6 +25,10 @@ if(isset($_SESSION['logged']) AND $_SESSION['logged']==true OR isset($_SESSION['
 		{
 		$ip=$_SESSION['server_ip'];
 		}
+	// $ip/port become directory name components below - only allow characters
+	// valid in a hostname/IPv4/IPv6, never path separators or "..".
+	if(!preg_match('/^[a-zA-Z0-9.:_-]+$/', $ip)) {$ip='';}
+	$port=(isset($_GET['port']) && preg_match('/^\d+$/', $_GET['port'])) ? $_GET['port'] : '';
 	$name=str_replace("\\","",$_REQUEST['name']);
 	$name=str_replace("/","",$name);
 	if(str_replace('icon_', '', $name)==100 OR str_replace('icon_', '', $name)==200 OR str_replace('icon_', '', $name)==300 OR str_replace('icon_', '', $name)==500 OR str_replace('icon_', '', $name)==600)
@@ -33,7 +37,7 @@ if(isset($_SESSION['logged']) AND $_SESSION['logged']==true OR isset($_SESSION['
 			}
 			else
 			{
-			$path='../icons/'.$ip.'-'.$_GET['port'].'/';
+			$path='../icons/'.$ip.'-'.$port.'/';
 			}
 
 	$mime=getimagesize($path.$name);

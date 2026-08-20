@@ -68,10 +68,12 @@ function create_channel_tree($pid, $place, $alldata)
 
 function secure($replace)
 	{
+	$replace=str_replace("&", "&amp;", $replace);
 	$replace=str_replace("<", "&lt;", $replace);
 	$replace=str_replace(">", "&gt;", $replace);
 	$replace=str_replace("\"", "&quot;", $replace);
-	
+	$replace=str_replace("'", "&#039;", $replace);
+
 	return $replace;
 	}
 
@@ -554,7 +556,56 @@ function parse_bbcode($txt)
 	$txt=preg_replace("^\[url=(.*)\](.*)\[/url\]^isU", "<a href=\"$1\">$2</a>", $txt);
 	$txt=preg_replace("^\[color=(.*)\](.*)\[/color\]^isU", "<font color=\"$1\">$2</font>", $txt);
 	$txt=preg_replace("^\[img\](.*)\[/img\]^isU", "<img src=\"$1\" alt=\"$1\" />", $txt);
-	
+
 	return $txt;
+	}
+
+// Login brute-force protection: track failed attempts per source IP in a
+// small file under temp/. Locks an IP out for $lockout seconds after
+// $maxattempts failures within $window seconds.
+function login_rate_limit_file($ip)
+	{
+	return TS3WI_DIR.DS.'temp'.DS.'.loginfail_'.hash('sha256', $ip);
+	}
+
+function login_rate_limit_check($ip)
+	{
+	$maxattempts=5;
+	$window=600; // 10 minutes
+	$lockout=900; // 15 minutes
+
+	$data=json_decode((string)@file_get_contents(login_rate_limit_file($ip)), true);
+	if(!is_array($data) OR !isset($data['count'], $data['first']))
+		{
+		return 0;
+		}
+	if($data['count']<$maxattempts)
+		{
+		return 0;
+		}
+	$remaining=$lockout-(time()-$data['first']);
+	if((time()-$data['first'])>$window+$lockout)
+		{
+		return 0; // stale record, treat as expired
+		}
+	return $remaining>0 ? $remaining : 0;
+	}
+
+function login_rate_limit_record_failure($ip)
+	{
+	$window=600;
+	$file=login_rate_limit_file($ip);
+	$data=json_decode((string)@file_get_contents($file), true);
+	if(!is_array($data) OR !isset($data['count'], $data['first']) OR (time()-$data['first'])>$window)
+		{
+		$data=array('count'=>0, 'first'=>time());
+		}
+	$data['count']++;
+	@file_put_contents($file, json_encode($data));
+	}
+
+function login_rate_limit_clear($ip)
+	{
+	@unlink(login_rate_limit_file($ip));
 	}
 ?>

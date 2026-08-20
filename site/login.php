@@ -38,6 +38,11 @@ elseif($loginstatus===true AND $hoststatus===true AND isset($_POST['sendlogin'])
 
     exit;
 	}
+elseif($loginstatus===false AND isset($_POST['sendlogin']) AND $loginlockout>0)
+	{
+	$error .= sprintf($lang['loginlockout'], ceil($loginlockout/60))."<br />";
+	session_destroy();
+	}
 elseif($loginstatus===false AND isset($_POST['sendlogin']))
 	{
 	$debuglog=$ts3->getDebugLog();

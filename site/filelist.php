@@ -21,7 +21,7 @@ $noerror='';
 $channellist=$ts3->channelList();
 $getallfiles=array();
 
-if(isset($_GET['deletefile']))
+if(isset($_GET['deletefile']) AND !empty($_SESSION['csrf_token']) AND !empty($_GET['csrf_token']) AND hash_equals($_SESSION['csrf_token'], (string)$_GET['csrf_token']))
 	{
 	$delfiles[]=$_GET['path']=="/" ? "/".$_GET['name']:$_GET['path']."/".$_GET['name'];
 	if(!isset($_GET['cpw'])) {$_GET['cpw']='';}

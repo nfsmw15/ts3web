@@ -24,6 +24,8 @@ $lang['addservergroup']="Server Group Add";
 $lang['admin']="Admin";
 $lang['administration']="Administration";
 $lang['alreadylogin']="You are already logged in.";
+$lang['loginlockout']="Too many failed login attempts. Please try again in %d minutes.";
+$lang['csrferror']="Your session expired or the request could not be verified. Please try again.";
 $lang['antiflood']="Anti Flood";
 $lang['autoban']="Autoban";
 $lang['autobancount']="Autoban Count";
@@ -452,6 +454,8 @@ if($cfglang=='de')
 	$lang['admin']="Admin";
 	$lang['administration']="Administration";
 	$lang['alreadylogin']="Sie sind bereits eingelogt.";
+	$lang['loginlockout']="Zu viele fehlgeschlagene Login-Versuche. Bitte versuche es in %d Minuten erneut.";
+	$lang['csrferror']="Deine Sitzung ist abgelaufen oder die Anfrage konnte nicht verifiziert werden. Bitte versuche es erneut.";
 	$lang['antiflood']="Anti Flood";
 	$lang['autoban']="Beschwerde";
 	$lang['autobancount']="Autoban Anzahl";
@@ -1068,6 +1072,8 @@ if($cfglang=='nl')
 	$lang['pagenotfoundmsg']="De door u opgegeven pagina is niet gevonden.";
 	$lang['loginerror']="Gebruikersnaam of wachtwoord fout.";
 	$lang['alreadylogin']="U bent al ingelogd.";
+	$lang['loginlockout']="Te veel mislukte inlogpogingen. Probeer het over %d minuten opnieuw.";
+	$lang['csrferror']="Uw sessie is verlopen of het verzoek kon niet worden geverifieerd. Probeer het opnieuw.";
 	$lang['transfers']="Overdrachten";
 	$lang['upbandlimit']="Upload Bandbreedte limiet";
 	$lang['downbandlimit']="Download Bandbreedte limiet";
@@ -1247,6 +1253,8 @@ if($cfglang=='fr')
 	$lang['admin']="Admin";
 	$lang['administration']="Administration";
 	$lang['alreadylogin']="Vous �tes d�j� connect�.";
+	$lang['loginlockout']="Trop de tentatives de connexion �chou�es. R�essayez dans %d minutes.";
+	$lang['csrferror']="Votre session a expir� ou la demande n'a pas pu �tre v�rifi�e. Veuillez r�essayer.";
 	$lang['antiflood']="Anti flood";
 	$lang['autoban']="Bannissement auto";
 	$lang['autobancount']="Compteur de bannissement auto";

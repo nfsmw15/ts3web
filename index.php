@@ -46,6 +46,23 @@ if(isset($_GET['site']))
 	$site=$_GET['site'];
 	}
 require("header.php");
+
+// CSRF protection: one token per session, checked on every POST request.
+// A failed check drops the POST body entirely rather than acting on it.
+$csrf_failed=false;
+if(empty($_SESSION['csrf_token']))
+	{
+	$_SESSION['csrf_token']=bin2hex(random_bytes(32));
+	}
+if($_SERVER['REQUEST_METHOD']==='POST')
+	{
+	if(empty($_POST['csrf_token']) OR !hash_equals($_SESSION['csrf_token'], (string)$_POST['csrf_token']))
+		{
+		$_POST=array();
+		$csrf_failed=true;
+		}
+	}
+
 if(isset($ts3) and (isset($_SESSION['loginsid']) or isset($_GET['sid'])))
 	{
 	if(isset($_SESSION['loginsid']))
@@ -200,6 +217,8 @@ $footer=implode("", file(TS3WI_DIR.DS.'templates'.DS.$style.DS.'index.tpl'));
 $smarty->assign("tmpl", $style);
 $smarty->assign("site", $site);
 $smarty->assign("lang", $lang);
+$smarty->assign("csrf_token", $_SESSION['csrf_token']);
+$smarty->assign("csrf_failed", $csrf_failed);
 $smarty->assign("hoststatus", $hoststatus);
 $smarty->assign("serverhost", $hoststatus);
 // fastswitch is assigned in site/fastswitch.php

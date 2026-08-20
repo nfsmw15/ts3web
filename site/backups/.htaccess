@@ -1,0 +1,10 @@
+# Apache: deny all direct access - channel/server backups (raw TS3 channel
+# and permission data) are stored here and must never be served directly.
+# Has no effect on nginx - see README for the equivalent nginx `location` block.
+<IfModule mod_authz_core.c>
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	Order deny,allow
+	Deny from all
+</IfModule>

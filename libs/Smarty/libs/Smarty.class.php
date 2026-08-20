@@ -128,7 +128,23 @@ class Smarty {
             ob_end_clean();
             return '<!-- Smarty error in ' . basename($file) . ': ' . htmlspecialchars($e->getMessage()) . ' -->';
         }
-        return ob_get_clean() ?: '';
+        $output = ob_get_clean() ?: '';
+        // CSRF: auto-inject the session token as a hidden field into every
+        // <form method="post"> instead of requiring every template to do it.
+        if (!empty(self::$_vars['csrf_token']) && stripos($output, '<form') !== false) {
+            $token = htmlspecialchars((string)self::$_vars['csrf_token'], ENT_QUOTES, 'UTF-8');
+            // Negative lookahead keeps this idempotent: nested {include}s already
+            // run this same injection on their own output before the outer
+            // template's buffer (which contains that already-injected HTML) runs
+            // it again - without the lookahead every nesting level would add
+            // another duplicate hidden field to the same form.
+            $output = preg_replace(
+                '/(<form\b[^>]*\bmethod\s*=\s*["\']post["\'][^>]*>)(?!<input type="hidden" name="csrf_token")/i',
+                '$1<input type="hidden" name="csrf_token" value="' . $token . '">',
+                $output
+            );
+        }
+        return $output;
     }
 
     private function _compile(string $src): string {
@@ -300,6 +316,7 @@ class Smarty {
                         default => 'htmlspecialchars((string)(' . $result . '), ENT_QUOTES, "UTF-8")'
                     };
                     break;
+                case 'addslashes':    $result = 'addslashes((string)(' . $result . '))'; break;
                 case 'nl2br':         $result = 'nl2br((string)(' . $result . '))'; break;
                 case 'upper':         $result = 'strtoupper((string)(' . $result . '))'; break;
                 case 'lower':         $result = 'strtolower((string)(' . $result . '))'; break;

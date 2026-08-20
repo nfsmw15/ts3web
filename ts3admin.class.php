@@ -2099,8 +2099,8 @@ class ts3admin {
   */
 	function ftRenameFile($cid, $cpw, $oldname, $newname, $tcid = null, $tcpw = null) {
 		if(!$this->runtime['selected']) { return $this->checkSelected(); }
-		$newTarget = ($tcid != null ? ' tcid='.$tcid.' '.$tcpw : '');
-		return $this->getData('boolean', 'ftrenamefile cid='.$cid.' cpw='.$cpw.' oldname='.$this->escapeText($oldname).' newname='.$this->escapeText($newname).$newTarget);
+		$newTarget = ($tcid != null ? ' tcid='.$tcid.' tcpw='.$this->escapeText($tcpw) : '');
+		return $this->getData('boolean', 'ftrenamefile cid='.$cid.' cpw='.$this->escapeText($cpw).' oldname='.$this->escapeText($oldname).' newname='.$this->escapeText($newname).$newTarget);
 	}
 
 /**

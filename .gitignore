@@ -2,10 +2,12 @@
 config.php
 
 # Smarty Cache (wird zur Laufzeit generiert)
-templates_c/
+templates_c/*
+!templates_c/.htaccess
 
 # Backup-Dateien
-site/backups/
+site/backups/*
+!site/backups/.htaccess
 
 # Betriebssystem
 .DS_Store

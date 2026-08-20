@@ -38,7 +38,7 @@
 					<td class="green1">{$value['size']} Mb</td>
 					<td class="green1">{$value['datetime']|date_format:"%d.%m.%Y - %H:%M:%S"}</td>
 					<td class="green1">{$value['cname']}</td>
-					<td class="green1"><a href="index.php?site=filelist&amp;sid={$sid}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}&amp;path={if empty($smarty.get.path)}/{else}{$smarty.get.path}{/if}&amp;name={$value['name']}&amp;deletefile=1">{$lang['delete']}</a></td>
+					<td class="green1"><a href="index.php?site=filelist&amp;sid={$sid}&amp;cid={if isset($value['cid'])}{$value['cid']}{else}{$smarty.get.cid}{/if}&amp;path={if empty($smarty.get.path)}/{else}{$smarty.get.path}{/if}&amp;name={$value['name']}&amp;deletefile=1&amp;csrf_token={$csrf_token}">{$lang['delete']}</a></td>
 				</tr>
 				{elseif $key === 'totalsize'}
 				<tr>

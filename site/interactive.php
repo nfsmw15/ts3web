@@ -40,6 +40,7 @@ if(!file_exists('..'.DS.'templates'.DS.$style))
 	}
 
 $smarty->assign("tmpl", $style);
+$smarty->assign("csrf_token", $_SESSION['csrf_token'] ?? '');
 
 $ts3=new ts3admin($_SESSION['server_ip'], $_SESSION['server_tport']);
 $ts3->connect();
