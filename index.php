@@ -207,6 +207,7 @@ if(!file_exists(TS3WI_TMPL_DIR.$style))
 	}
 
 require_once($page);
+$smarty->assign("fastswitch", false); // overridden to true inside site/fastswitch.php when applicable
 require_once('site/fastswitch.php');
 require_once('site/showupdate.php');
 require_once('site/footer.php');

@@ -81,19 +81,19 @@ function getPermsCommand($mode, $id, $perms)
 	{
 	switch($mode)
 		{
-		case 1;
+		case 1:
 			$command="servergroupaddperm sgid=".$id." ";
 			$delcommand="servergroupdelperm sgid=".$id." ";
 			break;
-		case 2;
+		case 2:
 			$command="channelgroupaddperm cgid=".$id." ";
 			$delcommand="channelgroupdelperm cgid=".$id." ";
 			break;
-		case 3;
+		case 3:
 			$command="channeladdperm cid=".$id." ";
 			$delcommand="channeldelperm cid=".$id." ";
 			break;
-		case 4;
+		case 4:
 			$command="clientaddperm cldbid=".$id." ";
 			$delcommand="clientdelperm cldbid=".$id." ";
 			break;
