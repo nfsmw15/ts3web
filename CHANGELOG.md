@@ -18,6 +18,7 @@ version 3 of the License, or any later version.
   - Added login rate limiting (5 failed attempts / 10 min -> 15 min lockout per IP)
   - Added CSRF protection: a per-session token is generated and validated on every POST, auto-injected into all `<form method="post">` from a single place in the Smarty compiler instead of touching every template; the two GET-based delete links now carry and check the token explicitly
   - Added `.htaccess` (deny all) to `temp/`, `templates_c/`, `site/backups/` for Apache-based deployments (nginx deployments need an equivalent `location` block instead - see README)
+  - Removed the footer/README link to psychoscripts.de - the original author's domain has lapsed and now redirects to an unrelated gambling site; the Psychokiller attribution text itself stays (required by the GPL license header)
 - Fixed a PHP 8.4 deprecation (`case N;` instead of `case N:`) in `functions.inc.php`
 - Fixed a long-standing "Undefined variable $fastswitch" warning on every page where the fastswitch dropdown isn't shown
 
