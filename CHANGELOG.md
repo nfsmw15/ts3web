@@ -8,6 +8,19 @@ version 3 of the License, or any later version.
 -->
 # Changelog
 
+## v3.4.6-php8 (2026-10-22)
+
+- Security review:
+  - Fixed a path traversal in `site/showfile.php` (`ip`/`port` weren't sanitized like `name` was) - reachable by any visitor without logging in, since `tsviewpub.php` unlocks it
+  - The `|addslashes` Smarty modifier was a silent no-op (the compiler looked for a function that never existed), leaving the one place that escaped a value for a JS string context doing nothing - fixed, closing a stored-XSS vector via virtual server names
+  - `ts3admin.class.php`: `ftRenameFile()` now escapes `cpw`/`tcpw` and sends the previously-missing `tcpw=` key
+  - `secure()` now also escapes `&` and `'`, not just `<`, `>`, `"`
+  - Added login rate limiting (5 failed attempts / 10 min -> 15 min lockout per IP)
+  - Added CSRF protection: a per-session token is generated and validated on every POST, auto-injected into all `<form method="post">` from a single place in the Smarty compiler instead of touching every template; the two GET-based delete links now carry and check the token explicitly
+  - Added `.htaccess` (deny all) to `temp/`, `templates_c/`, `site/backups/` for Apache-based deployments (nginx deployments need an equivalent `location` block instead - see README)
+- Fixed a PHP 8.4 deprecation (`case N;` instead of `case N:`) in `functions.inc.php`
+- Fixed a long-standing "Undefined variable $fastswitch" warning on every page where the fastswitch dropdown isn't shown
+
 ## v3.4.5-php8 (2026-08-20)
 
 - Fixed broken `Serverview` links (empty `sid=`) for scoped/single-server logins on pages whose own URL didn't already carry `?sid=`
