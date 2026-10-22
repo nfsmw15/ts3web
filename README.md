@@ -101,5 +101,5 @@ ts3web is a web-based administration interface for TeamSpeak 3 servers. It allow
 
 GNU General Public License v3.0 — see `gpl-3.0.txt`
 
-Original author: **Psychokiller** (http://www.psychoscripts.de)  
+Original author: **Psychokiller** (psychoscripts.de — domain since lapsed and now redirects to unrelated advertising; kept here as historical attribution only, not a working link)  
 PHP 8.x port by: **nfsmw15** (https://www.nfsmw15.de)
